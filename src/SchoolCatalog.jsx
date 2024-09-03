@@ -2,10 +2,14 @@ import { useState } from "react";
 import { useEffect } from "react";
 
 export default function SchoolCatalog() {
-  const [courses, setCourses] = useState([])
+  const [courses, setCourses] = useState([]);
   const [filter, setFilter] = useState("");
-  const [sort, setSort] = useState("trimester")
+  const [sort, setSort] = useState("trimester");
   const [direction, setDirection] = useState("asc");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 5;
+
+  // Filtering Data
 
   useEffect(() => {
     fetch("/api/courses.json")
@@ -17,6 +21,8 @@ export default function SchoolCatalog() {
     course.courseName.toLowerCase().startsWith(filter.toLowerCase()) ||
     course.courseNumber.toLowerCase().startsWith(filter.toLowerCase())
   );
+
+  // Sorting Data
 
   const handleSort = (field) => {
     const sortOrder = sort === field && direction === "asc" ? "desc" : "asc";
@@ -48,6 +54,12 @@ export default function SchoolCatalog() {
     return sortValue;
   });
 
+  // Pagination
+
+  const currentPage = sortedCourses.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const hasMore = sortedCourses.length > page * PAGE_SIZE;
+  const hasLess = page > 1;
+
   return (
     <div className="school-catalog">
       <h1>School Catalog</h1>
@@ -64,7 +76,7 @@ export default function SchoolCatalog() {
           </tr>
         </thead>
         <tbody>
-          {sortedCourses.map((course) => (
+          {currentPage.map((course) => (
               <tr key={course.courseNumber}>
                 <td>{course.trimester}</td>
                 <td>{course.courseNumber}</td>
@@ -79,8 +91,8 @@ export default function SchoolCatalog() {
         </tbody>
       </table>
       <div className="pagination">
-        <button>Previous</button>
-        <button>Next</button>
+        <button disabled={!hasLess} onClick={() => setPage(page - 1)}>Previous</button>
+        <button disabled={!hasMore} onClick={() => setPage(page + 1)}>Next</button>
       </div>
     </div>
   );
