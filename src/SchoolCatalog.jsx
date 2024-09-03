@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useEffect } from "react";
+import { useContext } from "react";
+import { AppContext } from "./App";
 
 export default function SchoolCatalog() {
   const [courses, setCourses] = useState([]);
@@ -8,6 +10,9 @@ export default function SchoolCatalog() {
   const [direction, setDirection] = useState("asc");
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 5;
+
+  // Access Enrolled Courses
+  const { enrolledCourses, setEnrolledCourses } = useContext(AppContext);
 
   // Filtering Data
 
@@ -60,6 +65,12 @@ export default function SchoolCatalog() {
   const hasMore = sortedCourses.length > page * PAGE_SIZE;
   const hasLess = page > 1;
 
+  function addCourse(course) {
+    const newCourses = [...enrolledCourses];
+    newCourses.push(course);
+    setEnrolledCourses(newCourses);
+  }
+
   return (
     <div className="school-catalog">
       <h1>School Catalog</h1>
@@ -84,7 +95,7 @@ export default function SchoolCatalog() {
                 <td>{course.semesterCredits}</td>
                 <td>{course.totalClockHours}</td>
                 <td>
-                  <button>Enroll</button>
+                  <button onClick={() => addCourse(course)}>Enroll</button>
                 </td>
               </tr>
             ))}
